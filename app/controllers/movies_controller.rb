@@ -7,7 +7,37 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    old_session_sort    = session[:sort]
+    old_session_ratings = session[:ratings]
+
+    session[:sort]    = (params[:sort] == "title" || params[:sort] == "release_date") ? params[:sort] : session[:sort]
+    session[:ratings] = params[:ratings] ? params[:ratings] : session[:ratings]
+
+    if session[:sort] != old_session_sort or session[:ratings] != old_session_ratings
+      redirect_to :sort => session[:sort], :ratings => session[:ratings] and return
+    end
+
+    # Get the sorting information
+    sort_by = session[:sort]
+    ordering = {}
+    case sort_by
+    when 'title'
+      ordering = {:order => :title}
+      @title_hilite = 'hilite'
+    when "release_date"
+      ordering = {:order => :release_date}
+      @release_date_hilite = 'hilite'
+    end
+
+    # Get the desired ratings
+    # You will also need code that figures out (i) how to figure out which boxes the user checked and (ii) how to restrict the database query based on that result.
+    @desired_ratings = session[:ratings] || {}
+
+    # Get the desired movies and sort them accordingly
+    @movies = Movie.find_all_by_rating @desired_ratings.keys, ordering
+
+    # Pass the possible ratings to the view
+    @all_ratings = Movie.all_ratings
   end
 
   def new
