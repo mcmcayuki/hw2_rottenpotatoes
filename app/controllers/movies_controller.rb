@@ -13,7 +13,7 @@ class MoviesController < ApplicationController
     session[:sort]    = (params[:sort] == "title" || params[:sort] == "release_date") ? params[:sort] : session[:sort]
     session[:ratings] = params[:ratings] ? params[:ratings] : session[:ratings]
 
-    if session[:sort] != old_session_sort or session[:ratings] != old_session_ratings
+    if params[:sort] != old_session_sort or params[:ratings] != old_session_ratings
       redirect_to :sort => session[:sort], :ratings => session[:ratings] and return
     end
 
